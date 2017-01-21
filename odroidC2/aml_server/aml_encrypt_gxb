@@ -1,0 +1,53 @@
+#!/bin/bash
+
+AML_SERVER_HOST=aml_encrypt_gbx
+AML_SERVER_PORT=3000
+
+usage() {
+    curl http://${AML_SERVER_HOST}:${AML_SERVER_PORT}/help >&1
+    exit 0
+}
+
+bootsig(){
+  local INPUT
+  local OUTPUT
+  echo $@
+  while true; do
+      case "$1" in
+      --input)
+          INPUT=$2
+          shift 1
+          ;;
+      --output)
+          OUTPUT=$2
+          break
+          ;;
+      *)
+          usage
+          ;;
+      esac
+      shift
+  done
+  eval $(echo "curl http://${AML_SERVER_HOST}:${AML_SERVER_PORT}/bootsig -F 'input=@${INPUT}' > ${OUTPUT}")
+}
+
+while true; do
+    case "$1" in
+    -h|--help)
+        usage
+        ;;
+    --bootsig)
+        shift
+        bootsig "$@"
+        exit 0
+        ;;
+    --)
+        usage
+        ;;
+    *)
+        echo "Internal error!"
+        exit 1
+        ;;
+    esac
+    shift
+done
